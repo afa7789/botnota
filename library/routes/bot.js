@@ -7,88 +7,81 @@ const ms = new MailSender();
 
 var bot_routes = express.Router()
 
-bot_routes.get(
-    '/clients',
-    async (request, response) => {
-        //     const body = request.body
-        try {
-            const answer = await axios.get(VHSYS + 'v2/clientes?limit=250', {
-                headers: {
-                    'content-type': 'application/json',
-                    'cache-control': 'no-cache',
-                    'access-token': ACCESS_TOKEN,
-                    'secret-access-token': SECRET_ACCESS_TOKEN,
-                }
-            }).then((resolve) => {
-                return resolve.data.data.map( el =>{
-                    return [
-                        el.id_cliente,
-                        el.fantasia_cliente ? el.fantasia_cliente : el.razao_cliente
-                    ]
-                }).sort((first, second) => first[0] - second[0]);
+bot_routes.get('/clients', async (request, response) => {
+    //     const body = request.body
+    try {
+        const answer = await axios.get(VHSYS + 'v2/clientes?limit=250', {
+            headers: {
+                'content-type': 'application/json',
+                'cache-control': 'no-cache',
+                'access-token': ACCESS_TOKEN,
+                'secret-access-token': SECRET_ACCESS_TOKEN,
+            }
+        }).then((resolve) => {
+            return resolve.data.data.map(el => {
+                return [
+                    el.id_cliente,
+                    el.fantasia_cliente ? el.fantasia_cliente : el.razao_cliente
+                ]
+            }).sort((first, second) => first[0] - second[0]);
+        }).catch((e) => {
+            console.log(e)
+            throw e
+        })
 
-            }).catch((e) => {
-                console.log(e)
-                throw e
-            })
-
-            // return the qrcode , image and transaction id I think.
-            return response.json({
-                status: true,
-                items: answer,
-            });
-
-        } catch (e) {
-            console.log("e",e)
-            return response.status(400).json({
-                status: false,
-            });
-        }
+        // return the qrcode , image and transaction id I think.
+        return response.json({
+            status: true,
+            items: answer,
+        });
+    } catch (e) {
+        console.log("e", e)
+        return response.status(400).json({
+            status: false,
+        });
     }
-)
+})
 
-bot_routes.get(
-    '/products',
-    async (request, response) => {
-        //     const body = request.body
-        try {
-            const answer = await axios.get(VHSYS + 'v2/produtos?limit=250', {
-                headers: {
-                    'content-type': 'application/json',
-                    'cache-control': 'no-cache',
-                    'access-token': ACCESS_TOKEN,
-                    'secret-access-token': SECRET_ACCESS_TOKEN,
-                }
-            }).then((resolve) => {
-                return resolve.data.data.filter(el =>{
-                    return parseFloat(el.valor_produto) > 0
-                }).map( el =>{
-                    return [
-                        el.id_produto,
-                        el.cod_produto,
-                        el.valor_produto
-                    ]
-                }).sort((first, second) => first[0] - second[0]);
+bot_routes.get('/products', async (request, response) => {
+    //     const body = request.body
+    try {
+        const answer = await axios.get(VHSYS + 'v2/produtos?limit=250', {
+            headers: {
+                'content-type': 'application/json',
+                'cache-control': 'no-cache',
+                'access-token': ACCESS_TOKEN,
+                'secret-access-token': SECRET_ACCESS_TOKEN,
+            }
+        }).then((resolve) => {
+            return resolve.data.data.filter(el => {
+                return parseFloat(el.valor_produto) > 0
+            }).map(el => {
+                return [
+                    el.id_produto,
+                    el.cod_produto,
+                    el.valor_produto
+                ]
+            }).sort((first, second) => first[0] - second[0]);
 
-            }).catch((e) => {
-                console.log(e)
-                throw e
-            })
+        }).catch((e) => {
+            console.log(e)
+            throw e
+        })
 
-            // return the qrcode , image and transaction id I think.
-            return response.json({
-                status: true,
-                items: answer,
-            });
+        // return the qrcode , image and transaction id I think.
+        return response.json({
+            status: true,
+            items: answer,
+        });
 
-        } catch (e) {
-            console.log("e",e)
-            return response.status(400).json({
-                status: false,
-            });
-        }
+    } catch (e) {
+        console.log("e", e)
+        return response.status(400).json({
+            status: false,
+        });
     }
-)
+})
+
 /*
     -d '{
         "serie_nota" : 1234,
@@ -120,54 +113,63 @@ bot_routes.get(
         "ambiente" : 2
     }'
 */
-bot_routes.post(
-    'nota_fiscal',
-    async (request,response) => {
+bot_routes.post('nota_fiscal', async (request, response) => {
+    body = request.body
+    body.ambient = 1
+    // cadastrar a nota e depois emitir
+    // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
+    // https://developers.vhsys.com.br/api/#api-Notas_consumidor-Post
+    try {
+        const answer = await axios.get(VHSYS + 'v2/notas-consumidor', body, {
+            headers: {
+                'content-type': 'application/json',
+                'cache-control': 'no-cache',
+                'access-token': ACCESS_TOKEN,
+                'secret-access-token': SECRET_ACCESS_TOKEN,
+            }
+        }).then((resolve) => {
+            // return resolve.data.data.filter(el =>{
+            //     return parseFloat(el.valor_produto) > 0
+            // }).map( el =>{
+            //     return [
+            //         el.id_produto,
+            //         el.cod_produto,
+            //         el.valor_produto
+            //     ]
+            // }).sort((first, second) => first[0] - second[0]);
+            return resolve.data
+        }).catch((e) => {
+            console.log(e)
+            throw e
+        })
 
-        body = request.body
+        // return the qrcode , image and transaction id I think.
+        return response.json({
+            status: true,
+            // items: answer,
+        });
 
-        body.ambient=1
-
-        // cadastrar a nota e depois emitir
-        // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
-        // https://developers.vhsys.com.br/api/#api-Notas_consumidor-Post
-        try {
-            const answer = await axios.get(VHSYS + 'v2/notas-consumidor', body, {
-                headers: {
-                    'content-type': 'application/json',
-                    'cache-control': 'no-cache',
-                    'access-token': ACCESS_TOKEN,
-                    'secret-access-token': SECRET_ACCESS_TOKEN,
-                }
-            }).then((resolve) => {
-                // return resolve.data.data.filter(el =>{
-                //     return parseFloat(el.valor_produto) > 0
-                // }).map( el =>{
-                //     return [
-                //         el.id_produto,
-                //         el.cod_produto,
-                //         el.valor_produto
-                //     ]
-                // }).sort((first, second) => first[0] - second[0]);
-                return resolve.data
-            }).catch((e) => {
-                console.log(e)
-                throw e
-            })
-
-            // return the qrcode , image and transaction id I think.
-            return response.json({
-                status: true,
-                // items: answer,
-            });
-
-        } catch (e) {
-            console.log("e",e)
-            return response.status(400).json({
-                status: false,
-            });
-        }
+    } catch (e) {
+        console.log("e", e)
+        return response.status(400).json({
+            status: false,
+        });
     }
+}
 )
+
+bot_routes.post('auth', (request, response) => {
+    if (request.body.pass == "Vlub.Vhsys123") {
+        return response.status(200).json({
+            status: true,
+        });
+
+    } else {
+        return response.status(400).json({
+            status: false,
+        });
+
+    }
+})
 
 export default bot_routes
