@@ -25,7 +25,8 @@ bot_routes.get(
                         el.id_cliente,
                         el.fantasia_cliente ? el.fantasia_cliente : el.razao_cliente
                     ]
-                });
+                }).sort((first, second) => first[0] - second[0]);
+
             }).catch((e) => {
                 console.log(e)
                 throw e
