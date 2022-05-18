@@ -5,7 +5,7 @@ import 'dotenv/config';
 const PORT = process.env.PORT || 3000
 
 app.get('/', (req, res) => {
-  res.send('O que você ta fazendo aqui rapaz 👀 ?\nÉ muito perigoso!!🙀')
+  res.send('O que você ta fazendo aqui rapaz 👀 ?\n &#010;É muito perigoso!!🙀')
 })
 
 app.listen(PORT,()=>{
