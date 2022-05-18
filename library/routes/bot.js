@@ -12,8 +12,7 @@ bot_routes.get(
     async (request, response) => {
         //     const body = request.body
         try {
-
-            const answer = await axios.get(VHSYS + 'v2/clientes', {
+            const answer = await axios.get(VHSYS + 'v2/clientes?limit=250', {
                 headers: {
                     'content-type': 'application/json',
                     'cache-control': 'no-cache',
@@ -21,7 +20,12 @@ bot_routes.get(
                     'secret-access-token': SECRET_ACCESS_TOKEN,
                 }
             }).then((resolve) => {
-                return resolve.data
+                return resolve.data.data.map( el =>{
+                    return [
+                        el.id_cliente,
+                        el.fantasia_cliente ? el.fantasia_cliente : el.razao_cliente
+                    ]
+                });
             }).catch((e) => {
                 console.log(e)
                 throw e
@@ -30,7 +34,7 @@ bot_routes.get(
             // return the qrcode , image and transaction id I think.
             return response.json({
                 status: true,
-                answer: answer,
+                data: answer,
             });
 
         } catch (e) {
