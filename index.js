@@ -43,9 +43,9 @@ async function getData2() {
     .get('https://botnota.herokuapp.com/products')
     .then((res) =>
       res.data.data.map(
-        //name
+        // name
         // id
-        //price
+        // price
         (elem) => [elem[1], elem[0],elem[2]]
       )
     );
@@ -70,17 +70,32 @@ bot.command('/start',
   }
 )
 
+// escolhe produto
 function ChooseAProduct(ctx){
   const data = await getData2()
   const inline_button = Markup.keyboard(
     data.map((el) => [Markup.button.callback(el[0], el[1])])
   ).oneTime()
   ctx.reply(
-    'Escolha um dos clientes abaixo',
+    'Escolha um dos produtos abaixo',
     inline_button,
   );
 }
 
+// outro produto ?
+function anotherProduct(ctx){
+  const inline_button = Markup.inlineKeyboard(
+    Markup.button.callback("sim","another_product"),
+    Markup.button.callback("no","close_nota"),
+    Markup.button.callback("cancelar","cancel")
+  ).oneTime()
+  ctx.reply(
+    'Vai querer adicionar mais um produto?',
+    inline_button,
+  );
+}
+
+// recebe o cliente, e pede produto
 async function onState0(ctx) {
   let client_id = null;
   const data = await getData()
@@ -104,32 +119,52 @@ async function onState0(ctx) {
   }
 }
 
-function anotherProduct(ctx){
-  const inline_button = Markup.inlineKeyboard(
-    Markup.button.callback("sim","another_product"),
-    Markup.button.callback("no","close_nota"),
-    Markup.button.callback("cancelar","cancel")
-  ).oneTime()
-  ctx.reply(
-    'Vai querer adicionar mais um produto?',
-    inline_button,
-  );
-}
+// recebe produto e pede quantidade
+function onState1(ctx){
 
-function onState1(ctx) {
-  const quantity  = parseInt(ctx.message.text)
-  if ( quantity == NaN ){
-    console.log("nao responder:", ctx.message.text, quantity)
-    ctx.reply('Não é uma quantidade válida.')
-  }else{
-    console.log("nao responder:", ctx.message.text, quantity)
-    ctx.session.state = null;
+  let product_id = null;
+  let product_price = null
+  let set = ctx.session.set ? new Set() : ctx.session.set 
+  let product_name = ctx.message.text
+  const data = await getData2()
+  data.every(el => {
+    if (el[0] == product_name) {
+      product_id = el[1];
+      product_price = el[2];
+      return false;
+    }
+    return true;
+  })
 
+  if (product_id != null) {
+    ctx.session.state = 2;
+    set.Add(product_id,{
+      name:product_name,
+      price:product_price
+    })
+  
+    Markup.removeKeyboard();
+    Markup.keyboard([])
+    ctx.session.last_products = product_id;
+    ctx.reply('Escolhido o produto = '+product_id)
+    ctx.reply("Quanto do produto " + product_name + " vai ser adicionado a nota?")
+  } else {
+    ctx.session=null
+    ctx.reply('Dado que foi entrado, não foi possível de ser processado, use /start novamente.')
   }
 }
 
-function onState2(ctx){
-
+// recebe quantidade e mostra botões para adicionar mais ou proseguir.
+function onState2(ctx) {
+  const quantity  = parseInt(ctx.message.text)
+  if ( quantity == NaN ){
+    console.log("nao responder:", ctx.message.text, quantity)
+    ctx.reply('Não é uma quantidade válida. Entre com um valor inteiro.')
+  }else{
+    console.log("nao responder:", ctx.message.text, quantity)
+    ctx.session.state = null;
+    anotherProduct(ctx);
+  }
 }
 
 bot.on('text',async (ctx) => {
@@ -146,29 +181,26 @@ bot.on('text',async (ctx) => {
       break;
     case 2:
       // faz nada por enquanto
-      // onState2(ctx);
+      onState2(ctx);
+      break;
+    case 3:
+      //nada
       break;
     default:
       return;
   }
 })
 
+bot.action("another_product",(ctx)=>{
+
+})
+
+bot.action("close_nota",(ctx)=>{
+  
+})
+
+bot.action("cancel",(ctx)=>{
+  
+})
+
 bot.launch()
-
-// >> Começar, escolha um cliente:
-// aparece botões, clica em um
-
-// >> Escolha um produto
-// aparece botões clica em um
-
-// >> Escolha uma quantidade
-// recebe texto
-
-// >> Quer Adicionar mais um produto ?
-// [sim],[nao],[cancelar nota]
-//  sim volta, não continua
-
-// >> Qual seu email ?
-// recebe email e faz regex de teste
-
-// >> Deu certo , envia POST request, backend faz as mutretas
