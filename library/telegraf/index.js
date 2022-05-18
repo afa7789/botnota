@@ -78,11 +78,11 @@ async function ChooseAProduct(ctx) {
 // outro produto ?
 function anotherProduct(ctx) {
 
-    const inline_button = Markup.inlineKeyboard(
+    const inline_button = Markup.inlineKeyboard([
         Markup.button.callback("sim", "another_product"),
         Markup.button.callback("não", "close_nota"),
         Markup.button.callback("cancelar", "cancel")
-    );
+    ]);
 
     ctx.reply(
         'Vai querer adicionar mais um produto?',
