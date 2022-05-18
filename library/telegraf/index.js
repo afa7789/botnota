@@ -123,7 +123,7 @@ async function onState1(ctx) {
         return true;
     })
     if (client_id != null) {
-        ctx.session.state = 1;
+        ctx.session.state = 2;
         Markup.removeKeyboard();
         Markup.keyboard([])
         ctx.session.client_id = client_id;
@@ -201,7 +201,6 @@ bot.on('text', async (ctx) => {
             break;
         case 3:
             await onState3(ctx);
-            //nada
             break;
         default:
             return;
