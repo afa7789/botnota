@@ -60,7 +60,7 @@ bot.command('/start',
 )
 
 // escolhe produto
-function ChooseAProduct(ctx){
+async function ChooseAProduct(ctx){
   const data = await getData2()
   const inline_button = Markup.keyboard(
     data.map((el) => [Markup.button.callback(el[0], el[1])])
@@ -101,7 +101,7 @@ async function onState0(ctx) {
     Markup.keyboard([])
     ctx.session.client_id = client_id;
     ctx.reply('Recebi o client e guardei na sessão seu id = '+client_id)
-    ChooseAProduct(ctx)
+    await ChooseAProduct(ctx)
   } else {
     ctx.session=null
     ctx.reply('Dado que foi entrado, não foi possível de ser processado, use /start novamente.')
@@ -109,7 +109,7 @@ async function onState0(ctx) {
 }
 
 // recebe produto e pede quantidade
-function onState1(ctx){
+async function onState1(ctx){
   // set data to be filles, and fetch it
   let product_id = null;
   let product_price = null
@@ -145,7 +145,7 @@ function onState1(ctx){
 }
 
 // recebe quantidade e mostra botões para adicionar mais ou proseguir.
-function onState2(ctx) {
+async function onState2(ctx) {
   const quantity  = parseInt(ctx.message.text)
   if ( quantity == NaN ){
     console.log("nao responder:", ctx.message.text, quantity)
@@ -167,11 +167,11 @@ bot.on('text',async (ctx) => {
       await onState0(ctx);
       break;
     case 1:
-      onState1(ctx);
+     await onState1(ctx);
       break;
     case 2:
       // faz nada por enquanto
-      onState2(ctx);
+      await onState2(ctx);
       break;
     case 3:
       //nada
@@ -181,7 +181,7 @@ bot.on('text',async (ctx) => {
   }
 })
 
-bot.action("another_product",(ctx)=>{
+bot.action("another_product",async (ctx)=>{
   // muda o state pare receber produto
   ctx.session.state=1
   // call choose a product
