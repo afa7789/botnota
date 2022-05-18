@@ -47,4 +47,47 @@ bot_routes.get(
     }
 )
 
+bot_routes.get(
+    '/products',
+    async (request, response) => {
+        //     const body = request.body
+        try {
+            const answer = await axios.get(VHSYS + 'v2/produtos?limit=250', {
+                headers: {
+                    'content-type': 'application/json',
+                    'cache-control': 'no-cache',
+                    'access-token': ACCESS_TOKEN,
+                    'secret-access-token': SECRET_ACCESS_TOKEN,
+                }
+            }).then((resolve) => {
+                return resolve.data.data.filter(el =>{
+                    return parseFloat(el.valor_produto) > 0
+                }).map( el =>{
+                    return [
+                        el.id_produto,
+                        el.cod_produto,
+                        el.valor_produto
+                    ]
+                }).sort((first, second) => first[0] - second[0]);
+
+            }).catch((e) => {
+                console.log(e)
+                throw e
+            })
+
+            // return the qrcode , image and transaction id I think.
+            return response.json({
+                status: true,
+                data: answer,
+            });
+
+        } catch (e) {
+            console.log("e",e)
+            return response.status(400).json({
+                status: false,
+            });
+        }
+    }
+)
+
 export default bot_routes
