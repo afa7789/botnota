@@ -113,7 +113,7 @@ bot_routes.get('/products', async (request, response) => {
         "ambiente" : 2
     }'
 */
-bot_routes.post('nota_fiscal', async (request, response) => {
+bot_routes.post('/nota_fiscal', async (request, response) => {
     body = request.body
     body.ambient = 1
     // cadastrar a nota e depois emitir
@@ -158,7 +158,7 @@ bot_routes.post('nota_fiscal', async (request, response) => {
 }
 )
 
-bot_routes.post('auth', (request, response) => {
+bot_routes.post('/auth', (request, response) => {
     if (request.body.pass == "Vlub.Vhsys123") {
         return response.status(200).json({
             status: true,
