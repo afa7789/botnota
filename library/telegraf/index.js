@@ -83,7 +83,7 @@ function anotherProduct(ctx) {
         Markup.button.callback("não", "close_nota"),
         Markup.button.callback("cancelar", "cancel")
     );
-    
+
     ctx.reply(
         'Vai querer adicionar mais um produto?',
         inline_button,
@@ -198,7 +198,6 @@ bot.on('text', async (ctx) => {
             await onState1(ctx);
             break;
         case 2:
-            // faz nada por enquanto
             await onState2(ctx);
             break;
         case 3:
