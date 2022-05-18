@@ -59,7 +59,6 @@ bot.command('/start',
     async (ctx) => {
         ctx.reply('Emissor de Nota Fiscal da VLub');
         ctx.session.state = 0;
-        anotherProduct(ctx);
     }
 )
 
@@ -155,7 +154,7 @@ async function onState2(ctx) {
 
     // check it
     if (product_id != null) {
-        ctx.session.state = 2;
+        ctx.session.state = 3;
         ctx.session.set[product_id] = {
             name: product_name,
             price: product_price
