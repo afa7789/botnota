@@ -201,6 +201,4 @@ bot.action("cancel",(ctx)=>{
   // cancelar
 })
 
-bot
-
 export default bot
