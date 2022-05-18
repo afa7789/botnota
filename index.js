@@ -25,12 +25,29 @@ bot.use(async (ctx, next) => {
 })
 bot.use((new LocalSession({ database: 'example_db.json' })).middleware())
 
-// getting data
+// getting data get clients
 async function getData() {
   const data = await axios
     .get('https://botnota.herokuapp.com/clients')
     .then((res) =>
-      res.data.data.map((elem) => [elem[1], elem[0]])
+      res.data.data.map(
+        (elem) => [elem[1], elem[0]]
+      )
+    );
+  return data
+}
+
+// getting data get products
+async function getData2() {
+  const data = await axios
+    .get('https://botnota.herokuapp.com/products')
+    .then((res) =>
+      res.data.data.map(
+        //name
+        // id
+        //price
+        (elem) => [elem[1], elem[0],elem[2]]
+      )
     );
   return data
 }
@@ -53,37 +70,61 @@ bot.command('/start',
   }
 )
 
+function ChooseAProduct(ctx){
+  const data = await getData2()
+  const inline_button = Markup.keyboard(
+    data.map((el) => [Markup.button.callback(el[0], el[1])])
+  ).oneTime()
+  ctx.reply(
+    'Escolha um dos clientes abaixo',
+    inline_button,
+  );
+}
+
 async function onState0(ctx) {
   let client_id = null;
   const data = await getData()
   data.every(el => {
     if (el[0] == ctx.message.text) {
-      ctx.session.state = 1;
       client_id = el[1];
       return false;
     }
     return true;
   })
   if (client_id != null) {
+    ctx.session.state = 1;
     Markup.removeKeyboard();
     Markup.keyboard([])
     ctx.session.client_id = client_id;
     ctx.reply('Recebi o client e guardei na sessão seu id = '+client_id)
-    ctx.reply('Qual o valor da Nota Fiscal?')
+    ChooseAProduct(ctx)
   } else {
     ctx.session=null
     ctx.reply('Dado que foi entrado, não foi possível de ser processado, use /start novamente.')
   }
 }
 
+function anotherProduct(ctx){
+  const inline_button = Markup.inlineKeyboard(
+    Markup.button.callback("sim","another_product"),
+    Markup.button.callback("no","close_nota"),
+    Markup.button.callback("cancelar","cancel")
+  ).oneTime()
+  ctx.reply(
+    'Vai querer adicionar mais um produto?',
+    inline_button,
+  );
+}
+
 function onState1(ctx) {
-  const float  = parseFloat(ctx.message.text)
-  if ( float == NaN ){
-    console.log("nao responder:", ctx.message.text, float)
-    ctx.reply('Não é um valor válido.')
+  const quantity  = parseInt(ctx.message.text)
+  if ( quantity == NaN ){
+    console.log("nao responder:", ctx.message.text, quantity)
+    ctx.reply('Não é uma quantidade válida.')
   }else{
-    console.log("nao responder:", ctx.message.text, float)
-    ctx.reply('Qual o seu email ? Para enviarmos a nota fiscal')
+    console.log("nao responder:", ctx.message.text, quantity)
+    ctx.session.state = null;
+
   }
 }
 
@@ -103,8 +144,9 @@ bot.on('text',async (ctx) => {
     case 1:
       onState1(ctx);
       break;
-    case 1:
-      onState2(ctx);
+    case 2:
+      // faz nada por enquanto
+      // onState2(ctx);
       break;
     default:
       return;

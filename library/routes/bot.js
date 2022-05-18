@@ -128,7 +128,9 @@ bot_routes.post(
 
         body.ambient=1
 
-
+        // cadastrar a nota e depois emitir
+        // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
+        // https://developers.vhsys.com.br/api/#api-Notas_consumidor-Post
         try {
             const answer = await axios.get(VHSYS + 'v2/notas-consumidor', body, {
                 headers: {
@@ -138,16 +140,16 @@ bot_routes.post(
                     'secret-access-token': SECRET_ACCESS_TOKEN,
                 }
             }).then((resolve) => {
-                return resolve.data.data.filter(el =>{
-                    return parseFloat(el.valor_produto) > 0
-                }).map( el =>{
-                    return [
-                        el.id_produto,
-                        el.cod_produto,
-                        el.valor_produto
-                    ]
-                }).sort((first, second) => first[0] - second[0]);
-
+                // return resolve.data.data.filter(el =>{
+                //     return parseFloat(el.valor_produto) > 0
+                // }).map( el =>{
+                //     return [
+                //         el.id_produto,
+                //         el.cod_produto,
+                //         el.valor_produto
+                //     ]
+                // }).sort((first, second) => first[0] - second[0]);
+                return resolve.data
             }).catch((e) => {
                 console.log(e)
                 throw e
@@ -156,7 +158,7 @@ bot_routes.post(
             // return the qrcode , image and transaction id I think.
             return response.json({
                 status: true,
-                items: answer,
+                // items: answer,
             });
 
         } catch (e) {
