@@ -160,7 +160,7 @@ async function onState2(ctx) {
             price: product_price,
             quantity:0,
         };
-        
+
         Markup.removeKeyboard();
         Markup.keyboard([])
         ctx.session.last_product = product_id;
@@ -221,9 +221,8 @@ bot.action("another_product", async (ctx) => {
 
 bot.action("close_nota", async (ctx) => {
     if (ctx.session?.state == 4) {
-        console.log("encerrar nota, tem que chamar backend aqui");
-        console.log("sessao",ctx.session,"\n")
-
+        console.log("Encerrar nota, tem que chamar backend aqui");
+        console.log("sessao",ctx.session,"\n");
         return
         // esperar resposta de uma api.
         // construir o corpor para ser enviado.

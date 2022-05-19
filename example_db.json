@@ -20,13 +20,13 @@
       "id": "765195026:765195026",
       "data": {
         "state": 4,
-        "timestamp": 1652919726432,
-        "client_id": 21160043,
+        "timestamp": 1652920128294,
+        "client_id": 21124006,
         "set": {
           "47970791": {
             "name": "500B4QT",
             "price": "405.530000",
-            "quantity": 100
+            "quantity": 300
           }
         },
         "last_product": 47970791

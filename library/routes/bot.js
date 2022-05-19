@@ -94,7 +94,7 @@ bot_routes.get('/products', async (request, response) => {
         "peso_total_nota_liq" : "0.00",
         "frete_pedido" : "0.00",
         "valor_baseICMS" : "0.00",
-        "valor_ICMS" : "0.00",
+        "valor_ICMS" : "0.00", // 12%
         "valor_despesas" : "0.00",
         "transportadora_pedido" : "Nome da transportadora",
         "id_transportadora" : 123456,
@@ -106,7 +106,7 @@ bot_routes.get('/products', async (request, response) => {
         "placa_transporta" : "AAA-0000",
         "natureza_pedido" : "Natureza da operação",
         "cfop_pedido" : "5101",
-        "obs_pedido" : "Observação",
+        "obs_pedido" : "Observação", // relação  nome | quantidade | preço | preço total
         "obs_interno_pedido" : "Observação interna",
         "status_pedido" : "Em Aberto",
         "indPres_pedido": 9,
