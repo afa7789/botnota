@@ -157,12 +157,12 @@ async function onState2(ctx) {
         ctx.session.state = 3;
         ctx.session.set[product_id] = {
             name: product_name,
-            price: product_price
+            price: product_price,
+            quantity:0,
         }
         Markup.removeKeyboard();
         Markup.keyboard([])
         ctx.session.last_products = product_id;
-        ctx.reply('Escolhido o produto = ' + product_id);
         ctx.reply("Quanto do produto " + product_name + " vai ser adicionado a nota?");
     } else {
         ctx.session = null
@@ -178,6 +178,7 @@ async function onState3(ctx) {
         ctx.reply('Não é uma quantidade válida. Entre com um valor inteiro.');
     } else {
         console.log("state=null:", ctx.message.text, quantity);
+        ctx.session.set[last_products].quantity += quantity
         anotherProduct(ctx);
         ctx.session.state = 4;
     }
@@ -219,6 +220,7 @@ bot.action("another_product", async (ctx) => {
 bot.action("close_nota", async (ctx) => {
     if (ctx.session?.state == 4) {
         console.log("encerrar nota, tem que chamar backend aqui");
+        console.log("sessao",ctx.session)
         // esperar resposta de uma api.
         // construir o corpor para ser enviado.
         const data = await axios.post('https://botnota.herokuapp.com/nota_fiscal',
@@ -234,13 +236,12 @@ bot.action("close_nota", async (ctx) => {
             ctx.reply("Erro");
         }
     }
-})
+});
 
 bot.action("cancel", (ctx) => {
     if (ctx.session?.state == 4) {
         ctx.session = null;
         ctx.reply('Os dados da nota foram removidos do bot.\nPara usar novamente digite /start');
-        // cancelar
     }
 })
 

@@ -122,7 +122,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
     // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
     // https://developers.vhsys.com.br/api/#api-Notas_consumidor-Post
     try {
-        
+
         // criar a nota fiscal
         const answer = await axios.get(VHSYS + 'v2/notas-consumidor', body, {
             headers: {
@@ -152,9 +152,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         });
     }
 
-
-}
-)
+})
 
 bot_routes.post('/auth', (request, response) => {
     if (request.body.pass == "Vlub.Vhsys123") {
