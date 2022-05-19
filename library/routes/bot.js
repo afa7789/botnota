@@ -82,6 +82,22 @@ bot_routes.get('/products', async (request, response) => {
     }
 })
 
+async function GetClient(client_id){
+    return await axios.get(VHSYS + 'v2/clientes/'+client_id, {
+        headers: {
+            'content-type': 'application/json',
+            'cache-control': 'no-cache',
+            'access-token': ACCESS_TOKEN,
+            'secret-access-token': SECRET_ACCESS_TOKEN,
+        }
+    }).then((resolve) => {
+        return resolve.data
+    }).catch((e) => {
+        console.log(e)
+        throw e
+    })
+}
+
 /*
     -d '{
         "serie_nota" : 1234,
@@ -114,15 +130,38 @@ bot_routes.get('/products', async (request, response) => {
     }'
 */
 bot_routes.post('/nota_fiscal', async (request, response) => {
+    // data received
+    let set = request.body.set;
+    let id_cliente = request.body.client_id;
+    let emissor = request.body.emitter;
+
+    const cliente = await GetClient(id_cliente)
+
+    // montar observação
+    let obs_message = "nome\t|\tquantidade\t|\tpreço\t|\tpreço total";
+    let total_sum = 0;
+    set.forEach((el)=>{
+        // name: '500B4QT', price: '405.530000', quantity: 300 
+        let price = parseFloat(el.price);
+        let item_total = price*quantity;
+        total_sum += item_total;
+        obs_message += `${el.name}\t|\t${el.quantity}\t|\t${price}\t|\t${item_total}\n`;
+    });
+    obs_message += `\t \t|\t \t|\t \t|\t ${total_sum}`;
 
     // contruir o body
-    body = request.body
-    body.ambient = 1
+    const body ={
+        ambient: 1, // trocar para 2 quando for executar de vdd
+        id_cliente : id_cliente,
+        obs_pedidio: obs_message,
+        valor_ICMS: ""+0.12 * total_sum,
+        vendedor_pedido : emissor,
+    };
+
     // cadastrar a nota e depois emitir
     // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
     // https://developers.vhsys.com.br/api/#api-Notas_consumidor-Post
     try {
-
         // criar a nota fiscal
         const answer = await axios.get(VHSYS + 'v2/notas-consumidor', body, {
             headers: {
@@ -136,11 +175,30 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         }).catch((e) => {
             console.log(e)
             throw e
-        })
+        });
+        
+        //emittir
+        const emitted = await axios.get(VHSYS + 'v2/notas-consumidor/'+ answer.data.id_nfc +'/emitir', body, {
+            headers: {
+                'content-type': 'application/json',
+                'cache-control': 'no-cache',
+                'access-token': ACCESS_TOKEN,
+                'secret-access-token': SECRET_ACCESS_TOKEN,
+            }
+        }).then((resolve) => {
+            return resolve.data
+        }).catch((e) => {
+            console.log(e)
+            throw e
+        });
+
 
         // emitir ela após a mesma ter sido criada.
-        // return the qrcode , image and transaction id I think.
+
         // enviar email para cliente.
+        // cliente.email_cliente
+        // cliente.email_contato_cliente
+
         return response.json({
             status: true,
             // items: answer,

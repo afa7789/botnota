@@ -223,7 +223,13 @@ bot.action("close_nota", async (ctx) => {
     if (ctx.session?.state == 4) {
         console.log("Encerrar nota, tem que chamar backend aqui");
         console.log("sessao",ctx.session,"\n");
-        return
+        const post_body = {
+            client_id: ctx.session.client_id,
+            emitter: ctx.message.chat.first_name + " " + ctx.message.chat.username,
+            set: Object.values(ctx.session.set)
+        }
+        // console.log('post_body',post_body);
+        
         // esperar resposta de uma api.
         // construir o corpor para ser enviado.
         const data = await axios.post('https://botnota.herokuapp.com/nota_fiscal',
@@ -231,6 +237,7 @@ bot.action("close_nota", async (ctx) => {
         ).then((res) => {
             return res.data;
         });
+
         // responder no chat de acordo com resultado
         // queria receber um arquivo da nota fiscal
         if (data.status) {
