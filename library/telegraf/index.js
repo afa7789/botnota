@@ -179,7 +179,7 @@ async function onState3(ctx) {
     } else {
         console.log("state=null:", ctx.message.text, quantity);
         anotherProduct(ctx);
-        ctx.session.state = null;
+        ctx.session.state = 4;
     }
 }
 
@@ -207,7 +207,7 @@ bot.on('text', async (ctx) => {
 })
 
 bot.action("another_product", async (ctx) => {
-    if (ctx.session.state == null) {
+    if (ctx.session?.state == 4) {
         // muda o state pare receber produto
         ctx.session.state = 2;
         // call choose a product
@@ -217,7 +217,7 @@ bot.action("another_product", async (ctx) => {
 });
 
 bot.action("close_nota", async (ctx) => {
-    if (ctx.session.state == null) {
+    if (ctx.session?.state == 4) {
         console.log("encerrar nota, tem que chamar backend aqui");
         // esperar resposta de uma api.
         const data = await axios.post('https://botnota.herokuapp.com/nota_fiscal',
@@ -233,7 +233,7 @@ bot.action("close_nota", async (ctx) => {
 })
 
 bot.action("cancel", (ctx) => {
-    if (ctx.session.state == null) {
+    if (ctx.session?.state == 4) {
         ctx.session = null;
         ctx.reply('Os dados da nota foram removidos do bot.\nPara usar novamente digite /start');
         // cancelar
