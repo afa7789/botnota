@@ -142,13 +142,11 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             console.log(e)
             throw e
         })
-
         // return the qrcode , image and transaction id I think.
         return response.json({
             status: true,
             // items: answer,
         });
-
     } catch (e) {
         console.log("e", e)
         return response.status(400).json({

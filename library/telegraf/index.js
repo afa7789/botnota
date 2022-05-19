@@ -34,7 +34,7 @@ async function postAuth(string) {
                 pass: string
             }
         )
-        .then((res) =>{
+        .then((res) => {
             return res.data
         });
     return data
@@ -150,7 +150,7 @@ async function onState2(ctx) {
             return false;
         }
         return true;
-    })
+    });
 
     // check it
     if (product_id != null) {
@@ -159,12 +159,11 @@ async function onState2(ctx) {
             name: product_name,
             price: product_price
         }
-
         Markup.removeKeyboard();
         Markup.keyboard([])
         ctx.session.last_products = product_id;
-        ctx.reply('Escolhido o produto = ' + product_id)
-        ctx.reply("Quanto do produto " + product_name + " vai ser adicionado a nota?")
+        ctx.reply('Escolhido o produto = ' + product_id);
+        ctx.reply("Quanto do produto " + product_name + " vai ser adicionado a nota?");
     } else {
         ctx.session = null
         ctx.reply('Dado que foi entrado, não foi possível de ser processado, use /start novamente.')
@@ -208,23 +207,37 @@ bot.on('text', async (ctx) => {
 })
 
 bot.action("another_product", async (ctx) => {
-    // muda o state pare receber produto
-    ctx.session.state = 2;
-    // call choose a product
-    ChooseAProduct(ctx);
-    console.log("another product");
-})
+    if (ctx.session.state == null) {
+        // muda o state pare receber produto
+        ctx.session.state = 2;
+        // call choose a product
+        ChooseAProduct(ctx);
+        console.log("another product");
+    }
+});
 
-bot.action("close_nota", (ctx) => {
-    console.log("encerrar nota, tem que chamar backend aqui");
-    // falar para aguardar
-    // esperar resposta de uma api.
+bot.action("close_nota", async (ctx) => {
+    if (ctx.session.state == null) {
+        console.log("encerrar nota, tem que chamar backend aqui");
+        // esperar resposta de uma api.
+        const data = await axios.post('https://botnota.herokuapp.com/nota_fiscal',
+            post_body).then((res) => {
+                return res.data;
+            });
+        if (data.status) {
+            ctx.reply("Nota fiscal gerada");
+        } else {
+            ctx.reply("Erro");
+        }
+    }
 })
 
 bot.action("cancel", (ctx) => {
-    ctx.session = null;
-    ctx.reply('Os dados da nota foram removidos do bot.\nPara usar novamente digite /start');
-    // cancelar
+    if (ctx.session.state == null) {
+        ctx.session = null;
+        ctx.reply('Os dados da nota foram removidos do bot.\nPara usar novamente digite /start');
+        // cancelar
+    }
 })
 
 export default bot
