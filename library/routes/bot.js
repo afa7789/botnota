@@ -1,8 +1,8 @@
 import { MailSender } from "../email/mail.js";
+import {createSuccessEmail, createErrorEmail, createReportErrorEmail} from '../email/craft_mail'
 import { VHSYS, ACCESS_TOKEN, SECRET_ACCESS_TOKEN } from '../../utils/constants.js'
 import express from 'express';
 import axios from 'axios';
-
 const ms = new MailSender();
 
 var bot_routes = express.Router()
@@ -136,6 +136,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
     let emissor = request.body.emitter;
 
     const cliente = await GetClient(id_cliente)
+    const email_equipe = "afa7789@gmail.com";
 
     // montar observação
     let obs_message = "nome\t|\tquantidade\t|\tpreço\t|\tpreço total";
@@ -177,7 +178,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             throw e
         });
         
-        //emittir
+        // emitir ela após a mesma ter sido criada.
         const emitted = await axios.get(VHSYS + 'v2/notas-consumidor/'+ answer.data.id_nfc +'/emitir', body, {
             headers: {
                 'content-type': 'application/json',
@@ -191,20 +192,40 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             console.log(e)
             throw e
         });
-
-
-        // emitir ela após a mesma ter sido criada.
-
+        
+        // tem que ver o que tem de emissão, 
+        // se gera algum arquivo para enviarmos no bot e nos emails.
+        // https://github.com/nodemailer/nodemailer#attachments
+        // https://stackoverflow.com/questions/21934667/how-to-attach-file-to-an-email-with-nodemailer
         // enviar email para cliente.
-        // cliente.email_cliente
-        // cliente.email_contato_cliente
+
+        let succm =createSuccessEmail({
+            toTeam: email_equipe,
+            to: cliente.email_cliente
+        })
+        await ms.sendMail(succm)
 
         return response.json({
             status: true,
             // items: answer,
         });
+
     } catch (e) {
         console.log("e", e)
+        let email =createErrorEmail({
+            toTeam: email_equipe,
+            to: cliente.email_cliente
+        })
+        await ms.sendMail(email)
+
+        email =createReportErrorEmail({
+            toTeam: email_equipe,
+            to: cliente.email_cliente,
+            error: e
+        })
+        await ms.sendMail(email)
+
+
         return response.status(400).json({
             status: false,
         });
