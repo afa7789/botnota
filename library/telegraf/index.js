@@ -82,7 +82,7 @@ function anotherProduct(ctx) {
         Markup.button.callback("não", "close_nota"),
         Markup.button.callback("cancelar", "cancel")
     ]);
-
+    console.log("sessao",ctx.session)
     ctx.reply(
         'Vai querer adicionar mais um produto?',
         inline_button,
@@ -155,14 +155,15 @@ async function onState2(ctx) {
     // check it
     if (product_id != null) {
         ctx.session.state = 3;
-        ctx.session.set[product_id] = {
+        ctx.session.set[product_id] ? null : ctx.session.set[product_id] = {
             name: product_name,
             price: product_price,
             quantity:0,
-        }
+        };
+        
         Markup.removeKeyboard();
         Markup.keyboard([])
-        ctx.session.last_products = product_id;
+        ctx.session.last_product = product_id;
         ctx.reply("Quanto do produto " + product_name + " vai ser adicionado a nota?");
     } else {
         ctx.session = null
@@ -178,7 +179,8 @@ async function onState3(ctx) {
         ctx.reply('Não é uma quantidade válida. Entre com um valor inteiro.');
     } else {
         console.log("state=null:", ctx.message.text, quantity);
-        ctx.session.set[last_products].quantity += quantity
+        let last_product = ctx.session.last_product
+        ctx.session.set[last_product].quantity += quantity
         anotherProduct(ctx);
         ctx.session.state = 4;
     }
@@ -220,7 +222,9 @@ bot.action("another_product", async (ctx) => {
 bot.action("close_nota", async (ctx) => {
     if (ctx.session?.state == 4) {
         console.log("encerrar nota, tem que chamar backend aqui");
-        console.log("sessao",ctx.session)
+        console.log("sessao",ctx.session,"\n")
+
+        return
         // esperar resposta de uma api.
         // construir o corpor para ser enviado.
         const data = await axios.post('https://botnota.herokuapp.com/nota_fiscal',
