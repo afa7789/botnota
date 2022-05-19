@@ -114,12 +114,16 @@ bot_routes.get('/products', async (request, response) => {
     }'
 */
 bot_routes.post('/nota_fiscal', async (request, response) => {
+
+    // contruir o body
     body = request.body
     body.ambient = 1
     // cadastrar a nota e depois emitir
     // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
     // https://developers.vhsys.com.br/api/#api-Notas_consumidor-Post
     try {
+        
+        // criar a nota fiscal
         const answer = await axios.get(VHSYS + 'v2/notas-consumidor', body, {
             headers: {
                 'content-type': 'application/json',
@@ -128,21 +132,15 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
                 'secret-access-token': SECRET_ACCESS_TOKEN,
             }
         }).then((resolve) => {
-            // return resolve.data.data.filter(el =>{
-            //     return parseFloat(el.valor_produto) > 0
-            // }).map( el =>{
-            //     return [
-            //         el.id_produto,
-            //         el.cod_produto,
-            //         el.valor_produto
-            //     ]
-            // }).sort((first, second) => first[0] - second[0]);
             return resolve.data
         }).catch((e) => {
             console.log(e)
             throw e
         })
+
+        // emitir ela após a mesma ter sido criada.
         // return the qrcode , image and transaction id I think.
+        // enviar email para cliente.
         return response.json({
             status: true,
             // items: answer,
@@ -153,6 +151,8 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             status: false,
         });
     }
+
+
 }
 )
 
