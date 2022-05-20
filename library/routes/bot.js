@@ -145,7 +145,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
     set.forEach((el)=>{
         // name: '500B4QT', price: '405.530000', quantity: 300 
         let price = parseFloat(el.price);
-        let item_total = price*quantity;
+        let item_total = price*el.quantity;
         total_sum += item_total;
         obs_message += `${el.name}\t|\t${el.quantity}\t|\t${price}\t|\t${item_total}\n`;
     });

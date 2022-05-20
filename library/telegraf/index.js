@@ -81,7 +81,7 @@ function anotherProduct(ctx) {
         Markup.button.callback("não", "close_nota"),
         Markup.button.callback("cancelar", "cancel")
     ]);
-    console.log("sessao",ctx.session)
+    console.log("sessao", ctx.session)
     ctx.reply(
         'Vai querer adicionar mais um produto?',
         inline_button,
@@ -90,23 +90,28 @@ function anotherProduct(ctx) {
 
 // recebe um texto e autentifica
 async function onState0(ctx) {
-    const auth = await postAuth(ctx.message.text)
-    if (auth.status) {
-        const data = await getData()
-        const inline_button = Markup.keyboard(
-            data.map((el) => [Markup.button.callback(el[0], el[1])])
-        ).oneTime()
-        console.log(ctx.message.chat.username)
-        ctx.session = {}
-        ctx.session.state = 1;
-        ctx.session.timestamp = Date.now()
-        ctx.reply(
-            'Acesso Liberado.\nEscolha um dos clientes abaixo',
-            inline_button,
-        );
-    } else {
-        ctx.reply("Não, você precisa de escrever a chave de acesso.")
-        console.log("not available at login")
+    try {
+        const auth = await postAuth(ctx.message.text)
+        if (auth.status) {
+            const data = await getData()
+            const inline_button = Markup.keyboard(
+                data.map((el) => [Markup.button.callback(el[0], el[1])])
+            ).oneTime()
+            ctx.session.user = ctx.message.chat.username
+            ctx.session.name = ctx.message.chat.first_name
+            ctx.session = {}
+            ctx.session.state = 1;
+            ctx.session.timestamp = Date.now()
+            ctx.reply(
+                'Acesso Liberado.\nEscolha um dos clientes abaixo',
+                inline_button,
+            );
+        } else {
+            ctx.reply("Não, você precisa de escrever a chave de acesso.")
+            console.log("not available at login")
+        }
+    } catch (e) {
+        console.log("error atuh", e)
     }
 }
 
@@ -157,7 +162,7 @@ async function onState2(ctx) {
         ctx.session.set[product_id] ? null : ctx.session.set[product_id] = {
             name: product_name,
             price: product_price,
-            quantity:0,
+            quantity: 0,
         };
 
         Markup.removeKeyboard();
@@ -221,37 +226,40 @@ bot.action("another_product", async (ctx) => {
 bot.action("close_nota", async (ctx) => {
     if (ctx.session?.state == 4) {
         console.log("Encerrar nota, tem que chamar backend aqui");
-        console.log("chat",ctx.message)
-        console.log("sessao",ctx.session,"\n");
+        console.log("sessao", ctx.session, "\n");
+        // construir o corpo para ser enviado.
         const post_body = {
             client_id: ctx.session.client_id,
-            emitter: ctx.message.chat.first_name + " " + ctx.message.chat.username,
+            emitter: ctx.session.name + " " + ctx.session.user,
             set: Object.values(ctx.session.set)
         }
-        // console.log('post_body',post_body);
-        
-        // esperar resposta de uma api.
-        // construir o corpor para ser enviado.
-        const data = await axios.post('https://botnota.herokuapp.com/nota_fiscal',
-            post_body
-        ).then((res) => {
-            return res.data;
-        });
 
-        // responder no chat de acordo com resultado
-        // queria receber um arquivo da nota fiscal
-        if (data.status) {
-            ctx.reply("Nota fiscal gerada");
+        try {
+            // console.log('post_body',post_body);
+            // esperar resposta de uma api.
+            const data = await axios.post('https://botnota.herokuapp.com/nota_fiscal',
+                post_body
+            ).then((res) => {
+                return res.data;
+            });
 
-            // ctx.replyWithDocument()
+            // responder no chat de acordo com resultado
+            // queria receber um arquivo da nota fiscal
+            if (data.status) {
+                ctx.reply("Nota fiscal gerada");
 
-            // ctx.telegram.sendDocument(ctx.from.id, {
-            //     url: data.url
-            //     filename: data.filename,
-            //  }).catch(function(error){ console.log(error); })
-            
-        } else {
-            ctx.reply("Erro");
+                // ctx.replyWithDocument()
+
+                // ctx.telegram.sendDocument(ctx.from.id, {
+                //     url: data.url
+                //     filename: data.filename,
+                //  }).catch(function(error){ console.log(error); })
+
+            } else {
+                ctx.reply("Erro");
+            }
+        } catch (e) {
+            console.log("e", e)
         }
     }
 });
