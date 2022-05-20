@@ -221,6 +221,7 @@ bot.action("another_product", async (ctx) => {
 bot.action("close_nota", async (ctx) => {
     if (ctx.session?.state == 4) {
         console.log("Encerrar nota, tem que chamar backend aqui");
+        console.log("chat",ctx.message)
         console.log("sessao",ctx.session,"\n");
         const post_body = {
             client_id: ctx.session.client_id,
