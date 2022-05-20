@@ -8,8 +8,8 @@ app.get('/', (req, res) => {
   res.send('O que você ta fazendo aqui rapaz 👀 ? É muito perigoso!!🙀')
 })
 
-app.listen(PORT,()=>{
-  console.log('Example app listening on port http://localhost:' + PORT);
-})
+// app.listen(PORT,()=>{
+//   console.log('Example app listening on port http://localhost:' + PORT);
+// })
 
-// bot.launch()
+bot.launch()

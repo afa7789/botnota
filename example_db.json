@@ -19,17 +19,17 @@
     {
       "id": "765195026:765195026",
       "data": {
-        "state": 0,
-        "timestamp": 1653014064187,
-        "client_id": 21160403,
+        "state": 4,
+        "timestamp": 1653014595291,
+        "client_id": 21160073,
         "set": {
-          "47970792": {
-            "name": "ASF41QT",
-            "price": "67.040000",
+          "47970791": {
+            "name": "500B4QT",
+            "price": "405.530000",
             "quantity": 100
           }
         },
-        "last_product": 47970792
+        "last_product": 47970791
       }
     }
   ]

@@ -136,7 +136,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
     let emissor = request.body.emitter;
 
     const cliente = await GetClient(id_cliente);
-    console.log("cliente",cliente);
+    // console.log("cliente",cliente);
     const email_equipe = "afa7789@gmail.com";
 
     // montar observação
