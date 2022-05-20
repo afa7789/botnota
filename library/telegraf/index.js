@@ -242,6 +242,14 @@ bot.action("close_nota", async (ctx) => {
         // queria receber um arquivo da nota fiscal
         if (data.status) {
             ctx.reply("Nota fiscal gerada");
+
+            // ctx.replyWithDocument()
+
+            // ctx.telegram.sendDocument(ctx.from.id, {
+            //     url: data.url
+            //     filename: data.filename,
+            //  }).catch(function(error){ console.log(error); })
+            
         } else {
             ctx.reply("Erro");
         }

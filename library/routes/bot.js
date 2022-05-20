@@ -135,7 +135,8 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
     let id_cliente = request.body.client_id;
     let emissor = request.body.emitter;
 
-    const cliente = await GetClient(id_cliente)
+    const cliente = await GetClient(id_cliente);
+    console.log("cliente",cliente);
     const email_equipe = "afa7789@gmail.com";
 
     // montar observação
@@ -177,8 +178,11 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             console.log(e)
             throw e
         });
+
+        console.log("answer",answer);
         
         // emitir ela após a mesma ter sido criada.
+        // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
         const emitted = await axios.get(VHSYS + 'v2/notas-consumidor/'+ answer.data.id_nfc +'/emitir', body, {
             headers: {
                 'content-type': 'application/json',
@@ -192,35 +196,50 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             console.log(e)
             throw e
         });
-        
+
         // tem que ver o que tem de emissão, 
         // se gera algum arquivo para enviarmos no bot e nos emails.
         // https://github.com/nodemailer/nodemailer#attachments
         // https://stackoverflow.com/questions/21934667/how-to-attach-file-to-an-email-with-nodemailer
         // enviar email para cliente.
 
+        //criando base do email
         let succm =createSuccessEmail({
-            toTeam: email_equipe,
-            to: cliente.email_cliente
+            // to: cliente.email_cliente,
+            to: "afa7789@gmail.com",
+            emitted: JSON.stringify(emitted,2)
         })
+
+        // enviar doc no email.
+        // adicionando attachments.
+        const unixTime = Math.floor(Date.now() / 1000);
+        const fileName = `nota_fiscal_Vlub_${unixTime}.pdf`
+        succm.attachments=[
+            {
+                filename:fileName,
+                path: emitted.data.Danfe // consigo por url
+            },
+        ]
+
+        // enviando email
         await ms.sendMail(succm)
 
         return response.json({
             status: true,
-            // items: answer,
+            filename: filename,
+            url: emitted.data.Danfe,
         });
 
     } catch (e) {
         console.log("e", e)
         let email =createErrorEmail({
-            toTeam: email_equipe,
-            to: cliente.email_cliente
+            // to: cliente.email_cliente
+            to:"afa7789@gmail.com",
         })
         await ms.sendMail(email)
 
         email =createReportErrorEmail({
             toTeam: email_equipe,
-            to: cliente.email_cliente,
             error: e
         })
         await ms.sendMail(email)
