@@ -1,5 +1,5 @@
 import { MailSender } from "../email/mail.js";
-import {createSuccessEmail, createErrorEmail, createReportErrorEmail} from '../email/craft_mail'
+import {createSuccessEmail, createErrorEmail, createReportErrorEmail} from '../email/craft_mail.js'
 import { VHSYS, ACCESS_TOKEN, SECRET_ACCESS_TOKEN } from '../../utils/constants.js'
 import express from 'express';
 import axios from 'axios';
