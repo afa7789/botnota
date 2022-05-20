@@ -1,5 +1,4 @@
-
-
+import 'dotenv/config';
 import axios from 'axios';
 import { Telegraf, Markup } from 'telegraf';
 import LocalSession from 'telegraf-session-local'
