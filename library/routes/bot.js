@@ -178,7 +178,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         }).then((resolve) => {
             return resolve.data;
         }).catch((e) => {
-            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data);
+            console.log("nota-fiscais",e.code, e.config.url, e.config.data, e.response.status, e.response.data);
             throw e;
         });
 
@@ -208,11 +208,11 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         }).then((resolve) => {
             return resolve.data;
         }).catch((e) => {
-            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data);
+            console.log("produtos",e.code, e.config.url, e.config.data, e.response.status, e.response.data);
             throw e;
         });
 
-        console.log("emitted", prod_added.data);
+        // console.log("emitted", prod_added.data);
 
         // emitir ela após a mesma ter sido criada.
         // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostEmitir
@@ -231,7 +231,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             console.log("resolve", resolve);
             return resolve.data;
         }).catch((e) => {
-            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data);
+            console.log("emitir",e.code, e.config.url, e.config.data, e.response.status, e.response.data);
             throw e;
         });
 
@@ -271,7 +271,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         });
 
     } catch (e) {
-        console.log("e", e);
+        console.log("e", e.code);
         let email = createErrorEmail({
             // to: cliente.email_cliente
             email: "afa7789@gmail.com",
