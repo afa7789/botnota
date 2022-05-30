@@ -176,10 +176,10 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
                 'secret-access-token': SECRET_ACCESS_TOKEN,
             }
         }).then((resolve) => {
-            return resolve.data
+            return resolve.data;
         }).catch((e) => {
-            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data)
-            throw e
+            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data);
+            throw e;
         });
 
         // https://api.vhsys.com/v2/notas-fiscais/:id_venda/produtos
@@ -206,13 +206,13 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
                 'secret-access-token': SECRET_ACCESS_TOKEN,
             }
         }).then((resolve) => {
-            return resolve.data
+            return resolve.data;
         }).catch((e) => {
-            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data)
-            throw e
+            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data);
+            throw e;
         });
 
-        console.log("emitted", prod_added.data)
+        console.log("emitted", prod_added.data);
 
         // emitir ela após a mesma ter sido criada.
         // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostEmitir
@@ -229,13 +229,13 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             }
         ).then((resolve) => {
             console.log("resolve", resolve);
-            return resolve.data
+            return resolve.data;
         }).catch((e) => {
-            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data)
-            throw e
+            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data);
+            throw e;
         });
 
-        console.log("emitted", emitted)
+        console.log("emitted", emitted);
 
         // tem que ver o que tem de emissão, 
         // se gera algum arquivo para enviarmos no bot e nos emails.
@@ -248,21 +248,21 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             // to: cliente.email_cliente,
             email: "afa7789@gmail.com",
             emitted: JSON.stringify(emitted, 2)
-        })
+        });
 
         // enviar doc no email.
         // adicionando attachments.
         const unixTime = Math.floor(Date.now() / 1000);
-        const fileName = `nota_fiscal_Vlub_${unixTime}.pdf`
+        const fileName = `nota_fiscal_Vlub_${unixTime}.pdf`;
         succm.attachments = [
             {
                 filename: fileName,
                 path: emitted.data.Danfe // consigo por url
             },
-        ]
+        ];
 
         // enviando email
-        await ms.sendMail(succm)
+        await ms.sendMail(succm);
 
         return response.json({
             status: true,
@@ -271,19 +271,18 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         });
 
     } catch (e) {
-        console.log("e", e)
+        console.log("e", e);
         let email = createErrorEmail({
             // to: cliente.email_cliente
             email: "afa7789@gmail.com",
-        })
-        await ms.sendMail(email)
+        });
+        await ms.sendMail(email);
 
         email = createReportErrorEmail({
             toTeam: email_equipe,
             error: e
-        })
-        await ms.sendMail(email)
-
+        });
+        await ms.sendMail(email);
 
         return response.status(400).json({
             status: false,
@@ -302,8 +301,7 @@ bot_routes.post('/auth', (request, response) => {
         return response.status(400).json({
             status: false,
         });
-
     }
 })
 
-export default bot_routes
+export default bot_routes;
