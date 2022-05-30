@@ -4,7 +4,9 @@ import { SMTP_FROM } from '../../utils/constants.js';
 function createSuccessEmail(payload) {
 
     payload.message = "Oi obrigado por comprar com a VLub,\n"+
-    "segue link para baixar sua nota fiscal: não ta pronto o email";
+    "segue link para baixar sua nota fiscal";
+
+    payload.message += "" + payload.emitted
 
     return {
         from: payload.from || SMTP_FROM,  // sender address

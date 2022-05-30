@@ -163,6 +163,7 @@ async function onState2(ctx) {
             name: product_name,
             price: product_price,
             quantity: 0,
+            id: product_id,
         };
 
         Markup.removeKeyboard();

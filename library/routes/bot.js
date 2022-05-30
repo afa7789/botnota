@@ -1,5 +1,5 @@
 import { MailSender } from "../email/mail.js";
-import {createSuccessEmail, createErrorEmail, createReportErrorEmail} from '../email/craft_mail.js'
+import { createSuccessEmail, createErrorEmail, createReportErrorEmail } from '../email/craft_mail.js'
 import { VHSYS, ACCESS_TOKEN, SECRET_ACCESS_TOKEN } from '../../utils/constants.js'
 import express from 'express';
 import axios from 'axios';
@@ -82,8 +82,8 @@ bot_routes.get('/products', async (request, response) => {
     }
 })
 
-async function GetClient(client_id){
-    return await axios.get(VHSYS + 'v2/clientes/'+client_id, {
+async function GetClient(client_id) {
+    return await axios.get(VHSYS + 'v2/clientes/' + client_id, {
         headers: {
             'content-type': 'application/json',
             'cache-control': 'no-cache',
@@ -91,7 +91,7 @@ async function GetClient(client_id){
             'secret-access-token': SECRET_ACCESS_TOKEN,
         }
     }).then((resolve) => {
-        return resolve.data
+        return resolve.data.data
     }).catch((e) => {
         console.log(e)
         throw e
@@ -142,30 +142,33 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
     // montar observação
     let obs_message = "nome\t|\tquantidade\t|\tpreço\t|\tpreço total";
     let total_sum = 0;
-    set.forEach((el)=>{
+    set.forEach((el) => {
         // name: '500B4QT', price: '405.530000', quantity: 300 
         let price = parseFloat(el.price);
-        let item_total = price*el.quantity;
+        let item_total = price * el.quantity;
         total_sum += item_total;
         obs_message += `${el.name}\t|\t${el.quantity}\t|\t${price}\t|\t${item_total}\n`;
     });
     obs_message += `\t \t|\t \t|\t \t|\t ${total_sum}`;
 
     // contruir o body
-    const body ={
-        ambient: 2, // trocar para 1 quando for executar de vdd
-        id_cliente : id_cliente,
+    const body = {
+        ambiente: 2, // trocar para 1 quando for executar de vdd
+        nome_cliente: cliente.fantasia_cliente ? cliente.fantasia_cliente : cliente.razao_cliente,
+        id_cliente: id_cliente,
         obs_pedidio: obs_message,
-        valor_ICMS: ""+0.12 * total_sum,
+        finalidade_nfe: 1,
+        valor_ICMS: (0.12 * total_sum).toFixed(2),
         // vendedor_pedido : emissor,
     };
 
+
     // cadastrar a nota e depois emitir
-    // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
-    // https://developers.vhsys.com.br/api/#api-Notas_consumidor-Post
+    // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostEmitir
+    // https://developers.vhsys.com.br/api/#api-Notas_fiscais-Post
     try {
         // criar a nota fiscal
-        const answer = await axios.post(VHSYS + 'v2/notas-consumidor', body, {
+        const answer = await axios.post(VHSYS + 'v2/notas-fiscais', body, {
             headers: {
                 'content-type': 'application/json',
                 'cache-control': 'no-cache',
@@ -175,15 +178,27 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         }).then((resolve) => {
             return resolve.data
         }).catch((e) => {
-            console.log(e)
+            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data)
             throw e
         });
 
-        console.log("answer",answer);
-        
-        // emitir ela após a mesma ter sido criada.
-        // https://developers.vhsys.com.br/api/#api-Notas_consumidor-PostEmitir
-        const emitted = await axios.get(VHSYS + 'v2/notas-consumidor/'+ answer.data.id_nfc +'/emitir', body, {
+        // https://api.vhsys.com/v2/notas-fiscais/:id_venda/produtos
+        // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostNotasFiscaisProduto
+        // é possível ler acima como que é enviado
+        // repetir a chamada para cada produto cadastrado. 
+        mapped = set.map((el) => {
+            // name: '500B4QT', price: '405.530000', quantity: 300 , id
+            let price = parseFloat(el.price).toFixed(2);
+            return {
+                "qtde_produto": el.quantity,
+                "id_produto": el.id,
+                "valor_unit_produto": price,
+                "desc_produto": el.name
+            }
+        });
+
+        // adicionar produtos a ela
+        const prod_added = await axios.post(VHSYS + 'v2/notas-fiscais', body, {
             headers: {
                 'content-type': 'application/json',
                 'cache-control': 'no-cache',
@@ -193,9 +208,32 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         }).then((resolve) => {
             return resolve.data
         }).catch((e) => {
-            console.log(e)
+            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data)
             throw e
         });
+
+        // emitir ela após a mesma ter sido criada.
+        // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostEmitir
+        const emitted = await axios.post(
+            VHSYS + 'v2/notas-fiscais/' + answer.data.id_venda + '/emitir',
+            {}, // you have to send empty body. it's a post
+            {
+                headers: {
+                    'content-type': 'application/json',
+                    'cache-control': 'no-cache',
+                    'access-token': ACCESS_TOKEN,
+                    'secret-access-token': SECRET_ACCESS_TOKEN,
+                }
+            }
+        ).then((resolve) => {
+            console.log("resolve", resolve);
+            return resolve.data
+        }).catch((e) => {
+            console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data)
+            throw e
+        });
+
+        console.log("emitted", emitted)
 
         // tem que ver o que tem de emissão, 
         // se gera algum arquivo para enviarmos no bot e nos emails.
@@ -204,19 +242,19 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         // enviar email para cliente.
 
         //criando base do email
-        let succm =createSuccessEmail({
+        let succm = createSuccessEmail({
             // to: cliente.email_cliente,
             email: "afa7789@gmail.com",
-            emitted: JSON.stringify(emitted,2)
+            emitted: JSON.stringify(emitted, 2)
         })
 
         // enviar doc no email.
         // adicionando attachments.
         const unixTime = Math.floor(Date.now() / 1000);
         const fileName = `nota_fiscal_Vlub_${unixTime}.pdf`
-        succm.attachments=[
+        succm.attachments = [
             {
-                filename:fileName,
+                filename: fileName,
                 path: emitted.data.Danfe // consigo por url
             },
         ]
@@ -226,19 +264,19 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
 
         return response.json({
             status: true,
-            filename: filename,
+            filename: fileName,
             url: emitted.data.Danfe,
         });
 
     } catch (e) {
         console.log("e", e)
-        let email =createErrorEmail({
+        let email = createErrorEmail({
             // to: cliente.email_cliente
-            email:"afa7789@gmail.com",
+            email: "afa7789@gmail.com",
         })
         await ms.sendMail(email)
 
-        email =createReportErrorEmail({
+        email = createReportErrorEmail({
             toTeam: email_equipe,
             error: e
         })
