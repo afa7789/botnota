@@ -12,6 +12,6 @@ app.listen(PORT,()=>{
   console.log('Example app listening on port http://localhost:' + PORT);
 });
 
-// bot.launch()
+// bot.launch();
 
 // data: '{"client_id":21160143,"emitter":"undefined undefined","set":[{"name":"ASF41QT","price":"67.040000","quantity":120}]}'

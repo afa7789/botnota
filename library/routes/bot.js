@@ -186,7 +186,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostNotasFiscaisProduto
         // é possível ler acima como que é enviado
         // repetir a chamada para cada produto cadastrado. 
-        mapped = set.map((el) => {
+        const mapped = set.map((el) => {
             // name: '500B4QT', price: '405.530000', quantity: 300 , id
             let price = parseFloat(el.price).toFixed(2);
             return {
