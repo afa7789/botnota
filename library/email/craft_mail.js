@@ -1,4 +1,4 @@
-import { SMTP_USER } from '../../utils/constants.js';
+import { SMTP_FROM } from '../../utils/constants.js';
 
 // =====================
 function createSuccessEmail(payload) {
@@ -7,7 +7,7 @@ function createSuccessEmail(payload) {
     "segue link para baixar sua nota fiscal: não ta pronto o email";
 
     return {
-        from: payload.from || SMTP_USER,  // sender address
+        from: payload.from || SMTP_FROM,  // sender address
         to: payload.email,                     // list of receivers
         subject: "Nota fiscal Emitida!",           // Subject line
         text: payload.message,// plain text body
@@ -22,7 +22,7 @@ function createErrorEmail(payload) {
     `Caso você não tenha sido alcançado por nossa equipe,\n entre em contato com: ${payload.toTeam}`
 
     return {
-        from: payload.from || SMTP_USER,         // sender address
+        from: payload.from || SMTP_FROM,         // sender address
         to: payload.email,                          // list of receivers
         subject: "Erro na emissão de nota", // Subject line
         text: payload.message,                      // plain text body
@@ -38,7 +38,7 @@ function createReportErrorEmail(payload) {
     JSON.stringify(payload.error,2,2);
 
     return {
-        from: payload.from || SMTP_USER,         // sender address
+        from: payload.from || SMTP_FROM,         // sender address
         to: payload.toTeam,                       // list of receivers
         subject: "Error na emissão de nota", // Subject line
         text: payload.message,                      // plain text body

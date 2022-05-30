@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { SMTP_USER, SMTP_HOST, SMTP_PORT, SMTP_PASS } from '../../utils/constants.js';
+import { SMTP_USER, SMTP_HOST, SMTP_PORT, SMTP_PASS,SMTP_FROM } from '../../utils/constants.js';
 
 // Constructor function
 class MailSender{
@@ -8,12 +8,12 @@ class MailSender{
     // Only needed if you don't have a real mail account for testing
     // let testAccount = await nodemailer.createTestAccount();
     // console.log(SMTP_USER, SMTP_HOST, SMTP_PORT, SMTP_PASS);
-    constructor() {
+    constructor(boole) {
         // create reusable transporter object using the default SMTP transport
         this.transporter = nodemailer.createTransport({
             host: SMTP_HOST,
             port: SMTP_PORT,
-            secure: true, // true for 465, false for other ports
+            secure: boole, // true for 465, false for other ports
             auth: {
                 user: SMTP_USER,
                 pass: SMTP_PASS,
@@ -25,11 +25,12 @@ class MailSender{
     async sendMail(payload){ 
 
         let info = await this.transporter.sendMail({
-            from: payload.from || SMTP_USER,  // sender address
+            from: payload.from || SMTP_FROM,  // sender address
             to: payload.to,                     // list of receivers
             subject: payload.subject,           // Subject line
             text: payload.text,                 // plain text body
             html: payload.html,                 // html body
+            attachments: payload.attachments
         });
         return info;
     };
