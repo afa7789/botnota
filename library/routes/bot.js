@@ -133,7 +133,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
     // data received
     let set = request.body.set;
     let id_cliente = request.body.client_id;
-    let emissor = request.body.emitter;
+    // let emissor = request.body.emitter;
 
     const cliente = await GetClient(id_cliente);
     // console.log("cliente",cliente);
@@ -153,11 +153,11 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
 
     // contruir o body
     const body ={
-        ambient: 1, // trocar para 2 quando for executar de vdd
+        ambient: 2, // trocar para 1 quando for executar de vdd
         id_cliente : id_cliente,
         obs_pedidio: obs_message,
         valor_ICMS: ""+0.12 * total_sum,
-        vendedor_pedido : emissor,
+        // vendedor_pedido : emissor,
     };
 
     // cadastrar a nota e depois emitir
@@ -165,7 +165,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
     // https://developers.vhsys.com.br/api/#api-Notas_consumidor-Post
     try {
         // criar a nota fiscal
-        const answer = await axios.get(VHSYS + 'v2/notas-consumidor', body, {
+        const answer = await axios.post(VHSYS + 'v2/notas-consumidor', body, {
             headers: {
                 'content-type': 'application/json',
                 'cache-control': 'no-cache',

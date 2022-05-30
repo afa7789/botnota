@@ -20,13 +20,13 @@
       "id": "765195026:765195026",
       "data": {
         "state": 4,
-        "timestamp": 1653914745259,
-        "client_id": 21156193,
+        "timestamp": 1653915484234,
+        "client_id": 21160143,
         "set": {
           "47970792": {
             "name": "ASF41QT",
             "price": "67.040000",
-            "quantity": 100
+            "quantity": 120
           }
         },
         "last_product": 47970792
