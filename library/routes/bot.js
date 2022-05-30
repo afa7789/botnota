@@ -206,7 +206,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         //criando base do email
         let succm =createSuccessEmail({
             // to: cliente.email_cliente,
-            to: "afa7789@gmail.com",
+            email: "afa7789@gmail.com",
             emitted: JSON.stringify(emitted,2)
         })
 
@@ -234,7 +234,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         console.log("e", e)
         let email =createErrorEmail({
             // to: cliente.email_cliente
-            to:"afa7789@gmail.com",
+            email:"afa7789@gmail.com",
         })
         await ms.sendMail(email)
 
