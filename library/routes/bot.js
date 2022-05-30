@@ -198,7 +198,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         });
 
         // adicionar produtos a ela
-        const prod_added = await axios.post(VHSYS + 'v2/notas-fiscais', body, {
+        const prod_added = await axios.post(VHSYS + 'v2/notas-fiscais/' + answer.data.id_venda + '/produtos', mapped, {
             headers: {
                 'content-type': 'application/json',
                 'cache-control': 'no-cache',
@@ -211,6 +211,8 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             console.log(e.code, e.config.url, e.config.data, e.response.status, e.response.data)
             throw e
         });
+
+        console.log("emitted", prod_added.data)
 
         // emitir ela após a mesma ter sido criada.
         // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostEmitir
