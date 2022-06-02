@@ -159,9 +159,9 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         obs_pedidio: obs_message,
         finalidade_nfe: 1,
         valor_ICMS: (0.12 * total_sum).toFixed(2),
+        natureza_pedido : "venda de produto", // natureza de operação, prestação serviço, etc ...
         // vendedor_pedido : emissor,
     };
-
 
     // cadastrar a nota e depois emitir
     // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostEmitir
@@ -193,7 +193,10 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
                 "qtde_produto": el.quantity,
                 "id_produto": el.id,
                 "valor_unit_produto": price,
-                "desc_produto": el.name
+                "desc_produto": el.name,
+                "cfop_produto":"6502", //Remessa de mercadoria adquirida ou recebida de terceiros, com fim específico de exportação.
+                // 5102: Venda de mercadoria adquirida ou recebida de terceiros (Simples Nacional) e que não foram manipuladas ou industrializadas no estabelecimento.
+                "ncm_produto":"38249989",
             }
         });
 
