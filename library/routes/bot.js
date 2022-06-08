@@ -161,7 +161,9 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         valor_ICMS: (0.12 * total_sum).toFixed(2),
         natureza_pedido : "venda de produto", // natureza de operação, prestação serviço, etc ...
         // vendedor_pedido : emissor,
-        tipo_intermediador: 7
+        // adicionados apos requisito do gabriel mas erro manteve-se
+        indPres_pedido: 0,
+        tipo_intermediador: 0  
     };
 
     // cadastrar a nota e depois emitir
@@ -221,7 +223,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             return resolve
         })
 
-        console.log("mapped",mapped);
+        // console.log("mapped",mapped);
 
         // adicionar produtos a ela
         const prod_added = await axios.post(VHSYS + 'v2/notas-fiscais/' + answer.data.id_venda + '/produtos', mapped, {
