@@ -32,11 +32,10 @@ class MailSender{
                 html: payload.html,                 // html body
                 attachments: payload.attachments
             });
+            return info;
         }catch(error){
             console.log("error at sendMail",error);
         }
-
-        return info;
     };
 
     async previewMail(info){

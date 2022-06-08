@@ -187,19 +187,41 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostNotasFiscaisProduto
         // é possível ler acima como que é enviado
         // repetir a chamada para cada produto cadastrado. 
-        const mapped = set.map((el) => {
+        const mapped_promises = await set.map( async (el) => {
             // name: '500B4QT', price: '405.530000', quantity: 300 , id
             let price = parseFloat(el.price).toFixed(2);
+
+            const prod = await axios.get(VHSYS + 'v2/produtos/'+el.id,{
+                headers: {
+                    'content-type': 'application/json',
+                    'cache-control': 'no-cache',
+                    'access-token': ACCESS_TOKEN,
+                    'secret-access-token': SECRET_ACCESS_TOKEN,
+                }
+            }).then((resolve) => {
+                return resolve.data;
+            }).catch((e) => {
+                console.log("produto",e.code, e.config.url, e.config.data, e.response.status, e.response.data);
+                throw e;
+            });
+
             return {
                 "qtde_produto": el.quantity,
                 "id_produto": el.id,
                 "valor_unit_produto": price,
                 "desc_produto": el.name,
-                "cfop_produto":"6502", //Remessa de mercadoria adquirida ou recebida de terceiros, com fim específico de exportação.
+                "cfop_produto": prod.cfop_produto ? prod.cfop_produto : "6502" , 
+                // "6502", Remessa de mercadoria adquirida ou recebida de terceiros, com fim específico de exportação.
                 // 5102: Venda de mercadoria adquirida ou recebida de terceiros (Simples Nacional) e que não foram manipuladas ou industrializadas no estabelecimento.
-                "ncm_produto":"38249989",
+                "ncm_produto": prod.data.ncm_produto,
             }
         });
+
+        const mapped = await Promise.all(mapped_promises).then((resolve) => {
+            return resolve
+        })
+
+        console.log("mapped",mapped);
 
         // adicionar produtos a ela
         const prod_added = await axios.post(VHSYS + 'v2/notas-fiscais/' + answer.data.id_venda + '/produtos', mapped, {
