@@ -161,6 +161,7 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
         valor_ICMS: (0.12 * total_sum).toFixed(2),
         natureza_pedido : "venda de produto", // natureza de operação, prestação serviço, etc ...
         // vendedor_pedido : emissor,
+        tipo_intermediador: 7
     };
 
     // cadastrar a nota e depois emitir
@@ -214,8 +215,6 @@ bot_routes.post('/nota_fiscal', async (request, response) => {
             console.log("produtos",e.code, e.config.url, e.config.data, e.response.status, e.response.data);
             throw e;
         });
-
-        // console.log("emitted", prod_added.data);
 
         // emitir ela após a mesma ter sido criada.
         // https://developers.vhsys.com.br/api/#api-Notas_fiscais-PostEmitir

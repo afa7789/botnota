@@ -23,15 +23,19 @@ class MailSender{
 
     // send mail with defined transport object
     async sendMail(payload){ 
+        try {
+            let info = await this.transporter.sendMail({
+                from: payload.from || SMTP_FROM,  // sender address
+                to: payload.to,                     // list of receivers
+                subject: payload.subject,           // Subject line
+                text: payload.text,                 // plain text body
+                html: payload.html,                 // html body
+                attachments: payload.attachments
+            });
+        }catch(error){
+            console.log("error at sendMail",error);
+        }
 
-        let info = await this.transporter.sendMail({
-            from: payload.from || SMTP_FROM,  // sender address
-            to: payload.to,                     // list of receivers
-            subject: payload.subject,           // Subject line
-            text: payload.text,                 // plain text body
-            html: payload.html,                 // html body
-            attachments: payload.attachments
-        });
         return info;
     };
 
