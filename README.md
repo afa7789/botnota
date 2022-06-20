@@ -14,3 +14,9 @@ yarn install
 yarn start
 ```
 
+## Descrição
+Criação de um bot para interagir no telegram e emitir nota fiscal de produtos recebidos
+
+## VHSYS
+
+Não funcionou, porque a empresa responsavel do sistema de nota fiscal não funciona.
